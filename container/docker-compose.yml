@@ -1,0 +1,19 @@
+services:
+  browser:
+    build:
+      context: ..
+      dockerfile: container/Dockerfile
+    container_name: scholar-browser
+    restart: unless-stopped
+    shm_size: 2gb
+    cap_add: [SYS_ADMIN]
+    ports:
+      - "3000:3000"     # ws-bridge: HTTP /api/bridge + /health
+      - "8091:8091"     # noVNC viewer -> http://<host>:8091/vnc.html?autoconnect=true (no password)
+      - "8090:8080"     # neko's own WebRTC UI (optional; not needed for noVNC)
+    environment:
+      NEKO_DESKTOP_SCREEN: "1280x800@30"
+      # Neko's own UI auth (the noVNC path bypasses this). Override via env.
+      NEKO_MEMBER_PROVIDER: multiuser
+      NEKO_MEMBER_MULTIUSER_USER_PASSWORD: "${NEKO_PASSWORD:-changeme}"
+      NEKO_MEMBER_MULTIUSER_ADMIN_PASSWORD: "${NEKO_ADMIN_PASSWORD:-changeme_admin}"

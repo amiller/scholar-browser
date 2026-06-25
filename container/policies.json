@@ -1,0 +1,8 @@
+{
+  "BrowserSignin": 0,
+  "SyncDisabled": true,
+  "PasswordManagerEnabled": false,
+  "BrowserGuestModeEnabled": false,
+  "ExtensionInstallBlocklist": [],
+  "ExtensionInstallAllowlist": ["*"]
+}

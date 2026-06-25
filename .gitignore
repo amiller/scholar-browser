@@ -1,0 +1,14 @@
+# harvested output
+scholar/papers/
+**/*.pdf
+scholar/*-index.md
+
+# secrets / runtime state (never commit)
+**/key.pem
+**/*.crx
+**/cookies*.json
+**/.pagekite.rc
+*.log
+
+# node
+**/node_modules/
