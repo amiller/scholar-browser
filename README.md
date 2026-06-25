@@ -37,6 +37,24 @@ cd ../scholar && python3 harvest.py        # downloads PDFs into ./papers, write
 The harvester solves Cloudflare automatically via xdotool when `cf_clearance` expires
 (set `ENVOY_CONTAINER` if your container name differs).
 
+## Steerable dataset builder
+Instead of a hardcoded harvest, grow a research-paper dataset you steer over time.
+
+```bash
+cd scholar
+python3 add_topic.py "oblivious RAM" --source eprint --min-year 2023
+python3 add_topic.py "private information retrieval" --source arxiv
+python3 build_dataset.py            # harvest new papers for all topics, politely
+```
+- **`topics.jsonl`** — your steering log; each line `{q, source, min_year, note, added}`.
+  Append anytime (via `add_topic.py` or by hand). Timestamps = a record of what you asked for, when.
+- **`dataset/manifest.jsonl`** — provenance; each paper records the topic(s) that pulled it + date.
+- **`dataset/papers/`** — the PDFs. Re-runs skip what's already there (resumable).
+- **Sources:** `eprint` (Cloudflare-handled), `arxiv` (plain API), `gscholar` (best-effort; needs a
+  logged-in session + slow pacing), `web` (DuckDuckGo, best-effort).
+
+Run it on a schedule (e.g. every 6h via cron) and it quietly extends the dataset as you add topics.
+
 ## Notes
 - The control extension under `container/extension/` is **minimal and purpose-built**: just
   `navigate` / `evaluate` / `screenshot`, polling the bridge. No CDP, no automation flags,
