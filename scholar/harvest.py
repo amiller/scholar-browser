@@ -74,17 +74,30 @@ def fetch(num, out):
     if data[:4] != b"%PDF": return "fail"
     open(out, "wb").write(data); return "ok"
 
-# ---- discover ----
+def page_429():
+    b = eprint.call("evaluate", "document.body?document.body.innerText.slice(0,120):''", t=15).get("result") or ""
+    return "too many requests" in b.lower()
+
+# ---- discover (politely; ePrint rate-limits search too) ----
 os.makedirs(DLDIR, exist_ok=True)
 papers = {}
+backoff = 60
 for q in QUERIES:
     q = q.strip()
     print(f"[search] {q}", flush=True)
-    try:
-        for p in eprint.search(q, 60): papers.setdefault(p["num"], p)
-    except Exception as e:
-        print(f"[search-err] {q}: {e}", flush=True)
-    time.sleep(2)
+    for _ in range(10):
+        try:
+            res = eprint.search(q, 60)
+        except Exception as e:
+            print(f"[search-err] {q}: {e}", flush=True); res = []
+        if res:
+            for p in res: papers.setdefault(p["num"], p)
+            backoff = 60; break
+        if page_429():
+            print(f"[429] search rate-limited — backing off {backoff}s (being polite)", flush=True)
+            time.sleep(backoff); backoff = min(backoff * 2, 900); continue
+        break  # genuinely no results
+    time.sleep(3)
 sel = sorted((p for p in papers.values() if year(p["num"]) >= MIN_YEAR),
              key=lambda p: p["num"], reverse=True)
 print(f"[harvest] {len(sel)} papers >= {MIN_YEAR}; polite delay={DELAY}s", flush=True)
