@@ -153,7 +153,7 @@ const server = http.createServer((req, res) => {
         if (command.tool === 'restart') {
           console.log('[WS-Bridge] New session via extension (browsingData.remove + navigate)')
           command.tool = 'newSession'
-          command.args = command.args || ['https://www.tiktok.com/login/phone-or-email/email']
+          command.args = command.args || ['about:blank']
           commandQueue.push(command)
           const timeout = setTimeout(() => {
             httpPending.delete(id)
